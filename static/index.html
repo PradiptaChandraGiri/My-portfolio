@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title id="meta-title">Pradipta Chandra Giri — B.Tech CSE Student | Aspiring Software & AI Intern</title>
+  <meta name="description" id="meta-desc" content="2nd-year CSE student at VSSUT Burla. Building web apps, automation tools, and AI projects. Seeking internships in software development and ML." />
+
+  <!-- SEO & Social -->
+  <meta property="og:title" content="Pradipta Chandra Giri — Portfolio" />
+  <meta property="og:description" content="B.Tech CSE student building software, AI projects, automation tools." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/assets/og-image.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://pradiptachandra.in/" />
+
+  <!-- Favicon & App icons -->
+  <link rel="icon" href="/assets/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+
+  <!-- Preconnect fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind Configuration (must be AFTER the CDN script) -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0F172A',
+            card: '#0B1220',
+            accent: '#0EA5A4',
+            accent2: '#60A5FA'
+          },
+          fontFamily: {
+            heading: ['Poppins', 'sans-serif'],
+            body: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- AOS for scroll animations (lightweight) -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Dark Mode Variables */
+    :root{ --bg-primary: #0F172A; --card-bg: #0B1220; --accent-teal: #0EA5A4; --muted:#94A3B8 }
+    
+    /* Light Mode Variables */
+    html.light {
+        --bg-primary: #FFFFFF;
+        --card-bg: #F8FAFC; /* slate-50 */
+        --accent-teal: #0EA5A4;
+        --muted: #64748B;
+    }
+    
+    html, body { height: 100%; }
+    body { background-color: var(--bg-primary); font-family: 'Inter', sans-serif; color: #E6EEF8; }
+    
+    html.light body { color: #1E293B; }
+    
+    h1,h2,h3 { font-family: 'Poppins', sans-serif; }
+    
+    /* small polished touches */
+    .glass { backdrop-filter: blur(6px); background: rgba(15,23,42,0.6); }
+    html.light .glass { background: rgba(255, 255, 255, 0.7); border-color: #E2E8F0; }
+    
+    .hero-gradient { background: radial-gradient( circle at 10% 10%, rgba(14,165,164,0.08), transparent 25%), linear-gradient(180deg, rgba(6,8,12,0.15), transparent 60%); }
+    
+    .skip-link{ position:absolute; left:0; top:0; transform:translateX(-110%); background:var(--accent-teal); color:#fff; padding:8px; z-index:50; border-radius:0 6px 6px 0; }
+    .skip-link:focus{ transform:translateX(0); }
+    
+    /* smooth transition for theme change */
+    .theme-transition{ transition: background-color .25s ease, color .25s ease; }
+    /* wave divider */
+    .section-wave { display:block; width:100%; }
+
+    /* small responsive helper for long project descriptions */
+    .truncate-2 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* Modal Styling */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7);
+        display: none; justify-content: center; align-items: center; z-index: 100;
+    }
+    .modal-content {
+        background: var(--card-bg); color: #E6EEF8; padding: 2rem; border-radius: 12px;
+        max-width: 90%; max-height: 90%; overflow-y: auto; position: relative;
+    }
+    html.light .modal-content { background: var(--light-card-bg); color: #1E293B; }
+    .spinner {
+        border-top-color: #0EA5A4; border-right-color: transparent; border-bottom-color: #0EA5A4; border-left-color: #0EA5A4;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+
+</head>
+<body class="theme-transition antialiased text-slate-100 bg-[var(--bg-primary)]">
+
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <main id="main">
+    <!-- Configuration and Dynamic Data Storage -->
+    <script>
+      // API base -> backend
+      const API_BASE_URL = window.location.origin + '/api';
+
+      // Data holders
+      let profileData = {};
+      let projectsData = [];
+      let configData = {};
+
+      // Uploaded avatar fallback id (from your uploaded image in Canvas)
+      const UPLOADED_AVATAR_ID = 'uploaded:image_e976b0.jpg-040e302e-41e8-44a9-a065-91f1be800900';
+      
+      // --- LLM CONFIG ---
+      const LLM_MODEL = 'gemini-2.5-flash-preview-09-2025';
+      const API_KEY = ""; // Provide your API key in the runtime environment if you want LLM features
+
+      // Fallback mock data (only used if backend unreachable)
+      const MOCK_DATA = {
+        profile: {
+          name: 'Pradipta Chandra Giri (OFFLINE)',
+          email: 'giripradiptachandra@gmail.com',
+          linkedin: 'https://www.linkedin.com/in/pradiptachandragiri',
+          github: 'https://github.com/PradiptaChandraGiri',
+          tagline: 'OFFLINE MODE: Data not loaded from server. Please start FastAPI backend.',
+          about: 'This page is running in offline mode. Start the FastAPI backend at http://127.0.0.1:8000 to load live data.',
+          photo_path: UPLOADED_AVATAR_ID, // Standardized to DB field name
+          resume_path: '#'
+        },
+        projects: [],
+        config: {
+          skills: {},
+          certifications: [],
+          offerings: [],
+          contact_info: {}
+        }
+      };
+
+      // small helper: safe access
+      const safe = (v, fallback) => (typeof v === 'undefined' || v === null) ? fallback : v;
+    </script>
+
+    <!-- NAVBAR -->
+    <header id="site-header" class="fixed w-full z-50 top-0 left-0 theme-transition bg-[var(--bg-primary)]/90 backdrop-blur-sm shadow-xl">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <a href="#hero" class="flex items-center gap-3">
+            <!-- Logo choice A -->
+            <img id="nav-logo" src="/assets/logo-A.png" alt="Pradipta logo" class="w-9 h-9 rounded-md shadow-sm" loading="lazy" onerror="this.onerror=null;this.src='/assets/logo.png'" />
+            <span id="nav-initials" class="hidden sm:inline font-heading font-bold text-lg text-white">PCG</span>
+          </a>
+
+          <!-- Desktop nav -->
+          <nav class="hidden md:flex items-center gap-6">
+            <a href="#about" class="text-sm text-slate-200 hover:text-accent transition">About</a>
+            <a href="#skills" class="text-sm text-slate-200 hover:text-accent transition">Skills</a>
+            <a href="#projects" class="text-sm text-slate-200 hover:text-accent transition">Projects</a>
+            <a href="#certs" class="text-sm text-slate-200 hover:text-accent transition">Certs</a>
+            <a href="#contact" class="text-sm text-slate-200 hover:text-accent transition">Contact</a>
+            <a id="nav-resume-cta" href="#" download class="ml-3 px-4 py-2 rounded-full bg-accent text-slate-900 font-semibold text-sm hover:opacity-95 shadow-md shadow-accent/40">Resume</a>
+
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" aria-label="Toggle theme" class="ml-3 p-2 rounded-md bg-transparent border border-slate-700 text-slate-200 hover:bg-slate-800">
+              <i data-lucide="sun" class="w-5 h-5" id="icon-sun"></i>
+              <i data-lucide="moon" class="w-5 h-5 hidden" id="icon-moon"></i>
+            </button>
+          </nav>
+
+          <!-- Mobile -->
+          <div class="md:hidden flex items-center gap-2">
+            <button id="mobile-theme-toggle" class="p-2 rounded-md bg-transparent border border-slate-700 text-slate-200" aria-label="Toggle theme mobile">
+              <i data-lucide="sun" class="w-5 h-5" id="icon-sun-m"></i>
+              <i data-lucide="moon" class="w-5 h-5 hidden" id="icon-moon-m"></i>
+            </button>
+            <button id="btn-mobile" aria-label="Toggle menu" class="p-2 rounded-md bg-transparent border border-slate-700 text-slate-200 hover:bg-slate-800">
+              <i data-lucide="menu" class="w-6 h-6" id="mobile-open"></i>
+              <i data-lucide="x" class="w-6 h-6 hidden" id="mobile-close"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile panel -->
+      <nav id="mobile-panel" class="md:hidden fixed inset-x-0 top-16 bg-[var(--bg-primary)] transform -translate-y-full transition-transform duration-300 shadow-lg">
+        <div class="px-4 pb-6 pt-4 space-y-2">
+          <a href="#about" class="block p-3 rounded-lg hover:bg-slate-800" onclick="closePanel()">About</a>
+          <a href="#skills" class="block p-3 rounded-lg hover:bg-slate-800" onclick="closePanel()">Skills</a>
+          <a href="#projects" class="block p-3 rounded-lg hover:bg-slate-800" onclick="closePanel()">Projects</a>
+          <a href="#certs" class="block p-3 rounded-lg hover:bg-slate-800" onclick="closePanel()">Certs</a>
+          <a href="#contact" class="block p-3 rounded-lg hover:bg-slate-800" onclick="closePanel()">Contact</a>
+          <a id="mobile-resume-cta" href="#" download class="block mt-3 p-3 rounded-lg bg-accent text-slate-900 text-center font-semibold shadow-md shadow-accent/40">Download Resume</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <section id="hero" class="min-h-[75vh] flex items-center hero-gradient">
+      <div class="max-w-6xl mx-auto px-4 py-20">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div data-aos="fade-up" class="animate-enter">
+            <h1 id="hero-headline" class="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold leading-tight mb-4">Loading Profile...</h1>
+            <p id="hero-tagline" class="text-lg text-slate-300 mb-6"></p>
+            <div class="flex gap-4 items-center">
+              <a href="#projects" class="px-6 py-3 bg-accent text-slate-900 font-semibold rounded-xl shadow hover:scale-[1.02] transition shadow-md shadow-accent/40">View Projects</a>
+              <a id="hero-resume-cta" href="#" download class="px-6 py-3 border border-slate-700 rounded-xl text-slate-200 hover:bg-slate-800 transition shadow-md">Download Resume</a>
+            </div>
+            <div class="mt-6 text-sm text-slate-400">Actively seeking internships in software development & ML. Open to remote and hybrid roles.</div>
+          </div>
+
+          <div data-aos="zoom-in" class="flex justify-center md:justify-end">
+            <div class="w-64 h-64 rounded-full overflow-hidden shadow-2xl border-4 border-slate-800 glass">
+              <img id="profile-avatar" src="https://placehold.co/256x256/1E293B/0EA5A4?text=PCG" alt="Pradipta Chandra Giri" loading="lazy" class="w-full h-full object-cover" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wave divider -->
+    <svg class="section-wave" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path fill="#0B1220" d="M0,32L48,37.3C96,43,192,53,288,58.7C384,64,480,64,576,58.7C672,53,768,43,864,38.7C960,34,1056,36,1152,37.3C1248,39,1344,41,1392,42.7L1440,44V80H1392C1344,80,1248,80,1152,80C1056,80,960,80,864,80C768,80,672,80,576,80C480,80,384,80,288,80C192,80,96,80,48,80H0Z"></path></svg>
+
+    <!-- ABOUT -->
+    <section id="about" class="py-20 bg-[var(--card-bg)] glass theme-transition">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-heading font-bold text-white mb-6">About Me</h2>
+        <div id="about-content" class="text-slate-200 max-w-3xl space-y-4">
+          <p class="text-center text-slate-400">Loading profile description...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="py-20 bg-[var(--bg-primary)] theme-transition">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-heading font-bold text-white mb-8">Technical Skills & Tools</h2>
+        
+        <!-- NEW LLM Feature Trigger -->
+        <div class="text-center mb-10">
+            <button onclick="openStudyPlanGenerator()" class="px-6 py-3 bg-accent2 text-slate-900 font-semibold rounded-xl shadow-lg hover:scale-[1.02] transition shadow-md shadow-accent2/40 flex items-center gap-2 justify-center mx-auto" aria-label="Generate a study plan">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                <span class="text-sm md:text-base">Generate ✨ 30-Day Internship Prep Roadmap</span>
+            </button>
+            <p class="text-slate-400 text-sm mt-3">Using your current skills profile and AI.</p>
+        </div>
+        
+        <!-- Skills Grid -->
+        <div id="skills-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <p class="text-center text-slate-400 md:col-span-4">Loading skills data...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section id="projects" class="py-20 bg-[var(--card-bg)] glass theme-transition">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-heading font-bold text-white mb-6">Signature Projects</h2>
+        <p class="text-slate-300 mb-8 max-w-2xl">Selected projects with measurable impact, code links and (optional) live demos.</p>
+
+        <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <p class="text-center text-slate-400 md:col-span-3">Loading projects data...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wave divider 2 -->
+    <svg class="section-wave" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path fill="#0F172A" d="M0,32L48,37.3C96,43,192,53,288,58.7C384,64,480,64,576,58.7C672,53,768,43,864,38.7C960,34,1056,36,1152,37.3C1248,39,1344,41,1392,42.7L1440,44V80H1392C1344,80,1248,80,1152,80C1056,80,960,80,864,80C768,80,672,80,576,80C480,80,384,80,288,80C192,80,96,80,48,80H0Z"></path></svg>
+
+    <!-- Certifications & Education -->
+    <section id="certs" class="py-20 bg-[var(--bg-primary)] theme-transition">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-heading font-bold text-white mb-6">Certifications & Education</h2>
+        <div id="certs-container" class="grid md:grid-cols-2 gap-6">
+          <div class="p-6 rounded-xl glass border border-slate-700" data-aos="fade-right">
+            <h3 class="text-xl font-semibold text-accent2 mb-2">Education</h3>
+            <p class="text-white font-medium">B.Tech — Computer Science & Engineering</p>
+            <p class="text-slate-300">Veer Surendra Sai University of Technology (VSSUT), Burla — 2nd Year</p>
+          </div>
+          <div class="p-6 rounded-xl glass border border-slate-700" data-aos="fade-left">
+            <h3 class="text-xl font-semibold text-accent2 mb-2">Key Certifications</h3>
+            <ul id="cert-list" class="list-disc list-inside text-slate-300 space-y-2">
+              <li class="text-center text-slate-400 list-none">Loading certifications...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Offerings / Internship -->
+    <section id="offer" class="py-20 bg-[var(--card-bg)] glass theme-transition">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-heading font-bold text-white mb-6">What I Offer</h2>
+        <div id="offer-grid" class="grid md:grid-cols-2 gap-6 text-slate-200">
+          <p class="text-center text-slate-400 md:col-span-2">Loading offerings...</p>
+        </div>
+        <div class="mt-8 text-accent font-semibold">I am ready to contribute from day one.</div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-20 bg-[var(--bg-primary)] theme-transition">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-heading font-bold text-white mb-6">Get in touch</h2>
+        <div class="grid lg:grid-cols-5 gap-8">
+          <div class="lg:col-span-2 p-6 rounded-xl glass border border-slate-700" data-aos="fade-right">
+            <h3 class="text-xl font-semibold text-accent2 mb-4">Connect Directly</h3>
+            <a id="contact-email" href="#" class="flex items-center gap-3 mb-3">
+              <i data-lucide="mail" class="w-5 h-5 text-accent"></i>
+              <div>
+                <div class="font-medium text-white">Loading...</div>
+                <div class="text-sm text-slate-300">Email me directly</div>
+              </div>
+            </a>
+            <a id="contact-github" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 mb-3">
+              <i data-lucide="github" class="w-5 h-5 text-accent"></i>
+              <div class="font-medium text-white">GitHub</div>
+            </a>
+            <a id="contact-linkedin" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 mb-3">
+              <i data-lucide="linkedin" class="w-5 h-5 text-accent"></i>
+              <div class="font-medium text-white">LinkedIn</div>
+            </a>
+          </div>
+
+          <form name="contact" method="POST" data-netlify="true" class="lg:col-span-3 p-6 rounded-xl glass border border-slate-700" aria-label="Contact form" data-aos="fade-left">
+            <input type="hidden" name="form-name" value="contact">
+            <div class="grid grid-cols-1 gap-4">
+              <input required name="name" placeholder="Your name" class="p-3 rounded-md bg-[var(--bg-primary)] border border-slate-700 text-slate-100" />
+              <input required name="email" type="email" placeholder="Your email" class="p-3 rounded-md bg-[var(--bg-primary)] border border-slate-700 text-slate-100" />
+              <input name="subject" placeholder="Subject" class="p-3 rounded-md bg-[var(--bg-primary)] border border-slate-700 text-slate-100" />
+              <textarea required name="message" rows="5" placeholder="Your message" class="p-3 rounded-md bg-[var(--bg-primary)] border border-slate-700 text-slate-100"></textarea>
+              <button type="submit" class="px-6 py-3 bg-accent text-slate-900 rounded-md font-semibold shadow-md shadow-accent/40">Send Message</button>
+            </div>
+            <p class="mt-3 text-sm text-slate-400">Powered by Netlify Forms. Alternatively, email me directly.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 bg-[var(--card-bg)] border-t border-slate-800 theme-transition">
+      <div class="max-w-6xl mx-auto px-4 text-center">
+        <div id="footer-links" class="flex justify-center gap-6 mb-4">
+          <!-- Links injected here -->
+        </div>
+        <div class="text-sm text-slate-400">&copy; <span id="year">2025</span> Pradipta Chandra Giri. All rights reserved.</div>
+      </div>
+    </footer>
+
+    <!-- Scroll to top button -->
+    <button id="scrollTop" aria-label="Scroll to top" class="fixed bottom-8 right-6 p-3 rounded-full bg-accent text-slate-900 shadow-lg hidden shadow-accent/40 hover:scale-[1.05] transition">
+      <i data-lucide="arrow-up" class="w-5 h-5"></i>
+    </button>
+  </main>
+  
+  <!-- LLM Modal for Study Plan -->
+  <div id="llm-modal-overlay" class="modal-overlay">
+    <div id="llm-modal-content" class="modal-content w-full md:w-3/5 lg:w-2/5">
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white" aria-label="Close modal">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <h3 class="text-2xl font-heading font-bold text-accent mb-4">✨ 30-Day Internship Prep Roadmap</h3>
+        <div id="modal-body" class="space-y-4 text-slate-300">
+            <p class="text-sm text-slate-400 mb-2">Goal: **Software/ML Internship**</p>
+            <div id="modal-spinner" class="flex justify-center items-center h-40">
+                <div class="spinner border-4 w-10 h-10 rounded-full"></div>
+                <p class="ml-4">Analysing your current skills to generate personalized roadmap...</p>
+            </div>
+            <div id="modal-result" class="hidden">
+                <p class="text-sm text-slate-400 mb-2">Generated by Gemini LLM (Based on your profile skills):</p>
+                <div class="p-4 rounded-lg bg-[var(--bg-primary)] border border-slate-700 whitespace-pre-wrap" id="roadmap-output"></div>
+            </div>
+            <div id="modal-error" class="hidden p-4 bg-red-900/50 border border-red-700 rounded-lg">
+                Error generating roadmap. Please check your network and API key.
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    // Initialize AOS
+    AOS.init({ duration: 650, once: true, easing: 'ease-out-cubic' });
+
+    // lucide icons
+    lucide.createIcons();
+    
+    // --- Core API Fetching Utility ---
+    async function fetchApiData(endpoint) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/${endpoint}`);
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        return await res.json();
+      } catch (err) {
+        console.warn('API fetch failed for', endpoint, err);
+        return null;
+      }
+    }
+    
+    // --- Rendering Functions ---
+
+    function updateProfileContent() {
+      const name = safe(profileData.name, 'Pradipta Chandra Giri');
+      const tagline = safe(profileData.tagline, 'B.Tech CSE student building software & AI projects.');
+
+      document.getElementById('nav-initials').textContent = name.split(' ').map(n => n[0]).join('');
+      document.getElementById('hero-headline').innerHTML = `Hi, I’m <span class="text-accent">${name.split(' ')[0]}</span> — a <span class="text-white/90">B.Tech CSE student</span> building practical software & AI projects.`;
+      document.getElementById('hero-tagline').textContent = tagline;
+
+      // image handling
+      // NOTE: FastAPI uses 'photo_path' in DB model, using that here.
+      const profileImage = safe(profileData.photo_path, '');
+      const avatarSrc = profileImage && typeof profileImage === 'string' ? profileImage : UPLOADED_AVATAR_ID;
+      document.getElementById('profile-avatar').src = avatarSrc;
+
+      // about
+      const aboutText = safe(profileData.about, 'Profile description not set up yet.');
+      document.getElementById('about-content').innerHTML = aboutText.split('\n').map(p => `<p>${p}</p>`).join('');
+
+      // resume
+      const resumePath = safe(profileData.resume_path, '#');
+      ['nav-resume-cta','mobile-resume-cta','hero-resume-cta'].forEach(id=>{
+        const el = document.getElementById(id);
+        if (el) el.href = resumePath;
+      });
+
+      // contact info
+      const contactInfo = configData.contact_info || {};
+      const email = contactInfo.email || profileData.email || 'giripradiptachandra@gmail.com';
+      const github = contactInfo.github || profileData.github || 'https://github.com/PradiptaChandraGiri';
+      const linkedin = contactInfo.linkedin || profileData.linkedin || 'https://www.linkedin.com/in/pradiptachandragiri';
+
+      const contactEmailEl = document.getElementById('contact-email');
+      if (contactEmailEl) {
+        contactEmailEl.href = `mailto:${email}`;
+        const inner = contactEmailEl.querySelector('div');
+        if (inner) inner.querySelector('div').textContent = email;
+      }
+      const contactGithubEl = document.getElementById('contact-github');
+      if (contactGithubEl) contactGithubEl.href = github;
+      const contactLinkedinEl = document.getElementById('contact-linkedin');
+      if (contactLinkedinEl) contactLinkedinEl.href = linkedin;
+
+      // footer links
+      const footerLinksHtml = `
+        <a href="${github}" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="text-slate-300 hover:text-accent"><i data-lucide="github" class="w-6 h-6"></i></a>
+        <a href="${linkedin}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="text-slate-300 hover:text-accent"><i data-lucide="linkedin" class="w-6 h-6"></i></a>
+        <a href="mailto:${email}" aria-label="Email" class="text-slate-300 hover:text-accent"><i data-lucide="mail" class="w-6 h-6"></i></a>
+      `;
+      document.getElementById('footer-links').innerHTML = footerLinksHtml;
+
+      // update meta
+      document.getElementById('meta-title').textContent = `${name} — B.Tech CSE Student | Aspiring Software & AI Intern`;
+      document.getElementById('meta-desc').setAttribute('content', safe(profileData.tagline, 'Building web apps, automation tools, and AI projects.'));
+    }
+
+    function renderSkills() {
+      const skills = safe(configData.skills, {});
+      const grid = document.getElementById('skills-grid');
+      if (!grid) return;
+      if (Object.keys(skills).length === 0) {
+        grid.innerHTML = '<p class="text-center text-slate-400 md:col-span-4">No skills available yet.</p>';
+        return;
+      }
+      grid.innerHTML = Object.entries(skills).map(([category, list], idx) => {
+        const icon = category.toLowerCase().includes('language') ? 'code' : (category.toLowerCase().includes('web') ? 'zap' : (category.toLowerCase().includes('database') ? 'cpu' : 'briefcase'));
+        const chips = Array.isArray(list) ? list.map(t=>`<span class="text-xs px-3 py-1 rounded-full bg-slate-900/40 text-sm">${t}</span>`).join(' ') : '';
+        return `<div class="p-6 rounded-xl glass border border-slate-700" data-aos="fade-up" data-aos-delay="${100*(idx+1)}"><h3 class="font-semibold mb-3 text-accent2 text-xl flex items-center gap-2"><i data-lucide="${icon}" class="w-5 h-5"></i>${category}</h3><div class="flex flex-wrap gap-2">${chips}</div></div>`;
+      }).join('');
+    }
+
+    function renderCertifications() {
+      const certs = safe(configData.certifications, []);
+      const el = document.getElementById('cert-list');
+      if (!el) return;
+      if (!Array.isArray(certs) || certs.length === 0) {
+        el.innerHTML = '<li class="text-center text-slate-400 list-none">No certifications yet.</li>';
+        return;
+      }
+      el.innerHTML = certs.map(c=>`<li class="flex items-start gap-3"><i data-lucide="arrow-up-right" class="w-4 h-4 text-accent mt-1"></i><p class="text-white">${c}</p></li>`).join('');
+    }
+
+    function renderOfferings() {
+      const offerings = safe(configData.offerings, []);
+      const container = document.getElementById('offer-grid');
+      if (!container) return;
+      if (!Array.isArray(offerings) || offerings.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-400 md:col-span-2">No offerings set yet.</p>';
+        return;
+      }
+      container.innerHTML = offerings.map(o=>`<div class="flex items-start gap-3 p-4 rounded-xl border border-slate-700 bg-[var(--bg-primary)] shadow-lg"><i data-lucide="briefcase" class="w-5 h-5 text-accent flex-shrink-0 mt-1"></i><p class="text-white/90">${o}</p></div>`).join('');
+    }
+
+    function createProjectCard(p, idx) {
+      // map backend fields to frontend-friendly names
+      const id = p.id || `proj-${idx}`;
+      const title = safe(p.title, 'Untitled Project');
+      const description = safe(p.description, 'No description provided.');
+      // FastAPI ProjectRead provides techStack (camelCase) and highlights (camelCase)
+      const techStack = Array.isArray(p.techStack) ? p.techStack : (Array.isArray(p.tech_stack) ? p.tech_stack : []);
+      const highlights = Array.isArray(p.highlights) ? p.highlights : [];
+      const image = safe(p.imagePath, safe(p.image_path, 'https://placehold.co/600x400/1E293B/0EA5A4?text=Project+Image'));
+      const demo = safe(p.demoUrl, safe(p.demo_url, '#'));
+      const github = safe(p.githubUrl, safe(p.github_url, '#'));
+
+      const techHtml = techStack.map(t=>`<span class="text-xs px-2 py-1 rounded-full bg-slate-900/30">${t}</span>`).join(' ');
+      const highlightsHtml = highlights.map(h=>`<li class="text-slate-300 text-sm">${h}</li>`).join('');
+
+      return `
+        <article data-aos="fade-up" data-aos-delay="${100*idx}" class="p-5 rounded-xl border border-slate-700 glass theme-transition flex flex-col h-full">
+          <img src="${image}" alt="${title} screenshot" loading="lazy" class="w-full h-40 object-cover rounded-md mb-4" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1E293B/0EA5A4?text=Project+Image'" />
+          <h3 class="font-semibold text-lg text-white mb-2">${title}</h3>
+          <p class="text-slate-300 mb-3 flex-grow truncate-2">${description}</p>
+          <div class="flex gap-2 mb-3 flex-wrap">${techHtml}</div>
+          <ul class="mb-3 pl-5 text-slate-300 list-disc">${highlightsHtml}</ul>
+          <div class="flex gap-3 mt-4 flex-wrap">
+            <a href="${demo}" target="_blank" rel="noopener noreferrer" class="px-3 py-2 bg-accent text-slate-900 rounded-md text-sm hover:opacity-90">Live</a>
+            <a href="${github}" target="_blank" rel="noopener noreferrer" class="px-3 py-2 border border-slate-700 rounded-md text-sm hover:bg-slate-800">Code</a>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderProjects() {
+      const grid = document.getElementById('projects-grid');
+      if (!grid) return;
+      if (!Array.isArray(projectsData) || projectsData.length === 0) {
+        grid.innerHTML = '<p class="text-center text-slate-400 md:col-span-3">No projects found.</p>';
+        return;
+      }
+      grid.innerHTML = projectsData.map(createProjectCard).join('');
+    }
+
+    function fullRender() {
+      updateProfileContent();
+      renderSkills();
+      renderCertifications();
+      renderOfferings();
+      renderProjects();
+      lucide.createIcons();
+      AOS.refresh();
+    }
+
+    // --- Initialization sequence ---
+    async function initializeFrontend() {
+      const [profile, projects, config] = await Promise.all([
+        fetchApiData('profile'),
+        fetchApiData('projects'),
+        fetchApiData('config')
+      ]);
+
+      profileData = profile || MOCK_DATA.profile;
+      projectsData = projects || MOCK_DATA.projects;
+      configData = config || MOCK_DATA.config;
+
+      // render
+      fullRender();
+
+      // warn if using mock
+      if (!profile || !projects || !config) {
+        console.warn('Using MOCK data because backend did not respond at', API_BASE_URL);
+      }
+    }
+
+    window.addEventListener('load', initializeFrontend);
+
+    // --- UI controls ---
+    const mobileBtn = document.getElementById('btn-mobile');
+    const mobilePanel = document.getElementById('mobile-panel');
+    const mobileOpen = document.getElementById('mobile-open');
+    const mobileClose = document.getElementById('mobile-close');
+
+    function openPanel() {
+      mobilePanel.classList.remove('-translate-y-full');
+      mobilePanel.classList.add('translate-y-0');
+      mobileOpen.classList.add('hidden');
+      mobileClose.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    function closePanel() {
+      mobilePanel.classList.add('-translate-y-full');
+      mobilePanel.classList.remove('translate-y-0');
+      mobileOpen.classList.remove('hidden');
+      mobileClose.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    if (mobileBtn) mobileBtn.addEventListener('click', () => { if (mobilePanel.classList.contains('-translate-y-full')) openPanel(); else closePanel(); });
+
+    // Theme toggle
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      if (theme === 'dark') { root.classList.add('dark'); root.classList.remove('light'); }
+      else { root.classList.add('light'); root.classList.remove('dark'); }
+      document.getElementById('icon-sun')?.classList.toggle('hidden', theme === 'light');
+      document.getElementById('icon-moon')?.classList.toggle('hidden', theme === 'dark');
+      document.getElementById('icon-sun-m')?.classList.toggle('hidden', theme === 'light');
+      document.getElementById('icon-moon-m')?.classList.toggle('hidden', theme === 'dark');
+    }
+
+    function readTheme() { return localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    let theme = readTheme(); applyTheme(theme);
+    document.getElementById('theme-toggle')?.addEventListener('click', () => { theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); applyTheme(theme); });
+    document.getElementById('mobile-theme-toggle')?.addEventListener('click', () => { theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); applyTheme(theme); });
+
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Scroll to top
+    const scrollTopBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => { if (window.scrollY > 400) scrollTopBtn.classList.remove('hidden'); else scrollTopBtn.classList.add('hidden'); });
+    if (scrollTopBtn) scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // Accessibility: close mobile panel on anchor jumps
+    document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', () => { closePanel(); setTimeout(()=>{ const id = a.getAttribute('href').slice(1); const el = document.getElementById(id); if (el) { el.setAttribute('tabindex','-1'); el.focus(); } }, 300); }); });
+    
+    // --- LLM Study Plan Logic ---
+    const modalOverlay = document.getElementById('llm-modal-overlay');
+    const modalSpinner = document.getElementById('modal-spinner');
+    const modalResult = document.getElementById('modal-result');
+    const roadmapOutput = document.getElementById('roadmap-output');
+    const modalError = document.getElementById('modal-error');
+    
+    function closeModal() {
+        modalOverlay.style.display = 'none';
+        modalResult.classList.add('hidden');
+        modalSpinner.classList.add('hidden');
+        modalError.classList.add('hidden');
+    }
+
+    async function openStudyPlanGenerator() {
+        // Clear previous state
+        modalResult.classList.add('hidden');
+        modalError.classList.add('hidden');
+        roadmapOutput.textContent = '';
+        
+        // Show modal and spinner
+        modalOverlay.style.display = 'flex';
+        modalSpinner.classList.remove('hidden');
+
+        // Extract skills from configData
+        const skillsObject = configData.skills || MOCK_DATA.config.skills;
+        let allSkills = [];
+        for (const category in skillsObject) {
+            if (Array.isArray(skillsObject[category])) {
+                allSkills = allSkills.concat(skillsObject[category]);
+            }
+        }
+        const skillsList = allSkills.join(', ');
+
+        const systemPrompt = "You are a specialized career coach for B.Tech CSE students focusing on software and ML internships. Generate a detailed, actionable 30-day study roadmap. The roadmap MUST be based on the provided existing skills and should focus on closing skill gaps and enhancing expertise for high-demand interview topics (like DSA, Flask/DB proficiency, and real-world ML application). Do not add any introductory or concluding text. The output MUST be a structured plan using clear headings and bullet points.";
+        
+        const userQuery = `Current Profile: B.Tech 2nd Year CSE student. Goal: Software Development/ML Internship. Existing Skills: ${skillsList}. Generate a 30-day preparation roadmap to be interview-ready.`;
+
+        const payload = {
+            contents: [{ parts: [{ text: userQuery }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+        };
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${LLM_MODEL}:generateContent?key=${API_KEY}`;
+        
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API call failed: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (text) {
+                roadmapOutput.textContent = text;
+                modalResult.classList.remove('hidden');
+            } else {
+                throw new Error("Received invalid response from LLM.");
+            }
+
+        } catch (error) {
+            console.error("Gemini API Error:", error);
+            modalError.classList.remove('hidden');
+        } finally {
+            modalSpinner.classList.add('hidden');
+            lucide.createIcons();
+        }
+    }
+  </script>
+</body>
+</html>
